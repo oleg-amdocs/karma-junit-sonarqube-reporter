@@ -1,22 +1,22 @@
-# karma-junit-reporter
+# karma-junit-sonarqube-reporter
 
-> Reporter for the JUnit XML format.
+> Reporter for the JUnit XML format which is also Sonarqube (a.k.a. Sonar) friendly. This plugin is a modification of the existing `karma-junit-reporter` plugin.     
 
 ## Installation
 
-The easiest way is to keep `karma-junit-reporter` as a devDependency in your `package.json`.
+The easiest way is to keep `karma-junit-sonarqube-reporter` as a devDependency in your `package.json`.
 ```json
 {
   "devDependencies": {
     "karma": "~0.10",
-    "karma-junit-reporter": "~0.2"
+    "karma-junit-sonarqube-reporter": "~0.0.1"
   }
 }
 ```
 
 You can simple do it by:
 ```bash
-npm install karma-junit-reporter --save-dev
+npm install karma-junit-sonarqube-reporter --save-dev
 ```
 
 ## Configuration

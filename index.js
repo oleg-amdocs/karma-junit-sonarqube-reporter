@@ -3,6 +3,8 @@ var path = require('path');
 var fs = require('fs');
 var builder = require('xmlbuilder');
 
+var jsFileSuffix = ".js";
+var specNaming =  "The spec name should map to the file structure: describe(\"test.com.company.BarTest\") → test/com/company/BarTest.js"
 
 var JUnitReporter = function(baseReporterDecorator, config, logger, helper, formatError) {
   var log = logger.create('reporter.junit');
@@ -16,6 +18,7 @@ var JUnitReporter = function(baseReporterDecorator, config, logger, helper, form
   var pendingFileWritings = 0;
   var fileWritingFinished = function() {};
   var allMessages = [];
+  var specNamingWrong = false;
 
   baseReporterDecorator(this);
 
@@ -23,12 +26,20 @@ var JUnitReporter = function(baseReporterDecorator, config, logger, helper, form
     allMessages.push(msg);
   }];
 
-  var initliazeXmlForBrowser = function(browser) {
+  var initializeXmlForBrowser = function(browser) {
     var timestamp = (new Date()).toISOString().substr(0, 19);
     var suite = suites[browser.id] = xml.ele('testsuite', {
-      name: browser.name, 'package': pkgName, timestamp: timestamp, id: 0, hostname: os.hostname()
+      name: browser.name, 
+      'package': pkgName, 
+      timestamp: timestamp, 
+      id: 0, 
+      hostname: os.hostname()
     });
-    suite.ele('properties').ele('property', {name: 'browser.fullName', value: browser.fullName});
+
+    suite.ele('properties').ele('property', { 
+      name: 'browser.fullName',
+      value: browser.fullName
+    });
   };
 
   this.onRunStart = function(browsers) {
@@ -36,11 +47,11 @@ var JUnitReporter = function(baseReporterDecorator, config, logger, helper, form
     xml = builder.create('testsuites');
 
     // TODO(vojta): remove once we don't care about Karma 0.10
-    browsers.forEach(initliazeXmlForBrowser);
+    browsers.forEach(initializeXmlForBrowser);
   };
 
   this.onBrowserStart = function(browser) {
-    initliazeXmlForBrowser(browser);
+    initializeXmlForBrowser(browser);
   };
 
   this.onBrowserComplete = function(browser) {
@@ -61,6 +72,10 @@ var JUnitReporter = function(baseReporterDecorator, config, logger, helper, form
 
     suite.ele('system-out').dat(allMessages.join() + '\n');
     suite.ele('system-err');
+
+    if (specNamingWrong) {
+      log.warn(specNaming);
+    }
   };
 
   this.onRunComplete = function() {
@@ -85,10 +100,35 @@ var JUnitReporter = function(baseReporterDecorator, config, logger, helper, form
     allMessages.length = 0;
   };
 
+  function checkSuiteName(suite) {
+    var suiteFilename = suite.replace(/\./g, '/');
+    suiteFilename += jsFileSuffix;
+    var normalizedFilename = helper.normalizeWinPath(path.resolve(suiteFilename));
+    var result = fs.exists(normalizedFilename, function (exists) {
+      if (!exists) {
+        var message = "Sonarqube may fail to parse this report since the test file was not found at " + normalizedFilename;
+        allMessages.push(message);
+        log.warn(message);
+        specNamingWrong = true;
+      }
+      return exists;
+    });
+    return result;
+  }
+
+  // classname format: <browser>.<package>.<suite>
+  // ex.: Firefox_210_Mac_OS.com.company.BarTest
+  // the classname should map to the file structure: com.company.BarTest → com/company/BarTest.js
   this.specSuccess = this.specSkipped = this.specFailure = function(browser, result) {
+    var classname = browser.name.replace(/\s/g, '_').replace(/\./g, '');
+    classname += pkgName ? pkgName + ' ' : '';
+    classname += '.' + result.suite[0];
+    checkSuiteName(result.suite[0]);
+
     var spec = suites[browser.id].ele('testcase', {
-      name: result.description, time: ((result.time || 0) / 1000),
-      classname: (pkgName ? pkgName + ' ' : '') + browser.name + '.' + result.suite.join(' ').replace(/\./g, '_')
+      name: result.description,
+      time: ((result.time || 0) / 1000),
+      classname: classname
     });
 
     if (result.skipped) {
