@@ -103,7 +103,7 @@ var JUnitReporter = function(baseReporterDecorator, config, logger, helper, form
   function checkSuiteName(suite) {
     var suiteFilename = suite.replace(/\./g, '/');
     suiteFilename += jsFileSuffix;
-    var normalizedFilename = helper.normalizeWinPath(path.resolve(suiteFilename));
+    var normalizedFilename = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.specsRoot, suiteFilename));
     var result = fs.exists(normalizedFilename, function (exists) {
       if (!exists) {
         var message = "Sonarqube may fail to parse this report since the test file was not found at " + normalizedFilename;
