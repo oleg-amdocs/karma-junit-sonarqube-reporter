@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/henriquegontijo/karma-junit-sonarqube-reporter.git"
+    "url": "git://github.com/oleg-amdocs/karma-junit-sonarqube-reporter2.git"
   },
   "keywords": [
     "karma-plugin",
