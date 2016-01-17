@@ -1,5 +1,5 @@
 {
-  "name": "karma-junit-sonarqube-reporter",
+  "name": "karma-junit-sonarqube-reporter2",
   "version": "0.0.1",
   "description": "A Karma plugin that generates a JUnit xml report which is Sonarqube friendly.",
   "main": "index.js",
