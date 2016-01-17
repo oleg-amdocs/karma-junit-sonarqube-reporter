@@ -9,14 +9,14 @@ The easiest way is to keep `karma-junit-sonarqube-reporter` as a devDependency i
 {
   "devDependencies": {
     "karma": "~0.10",
-    "karma-junit-sonarqube-reporter": "~0.0.1"
+    "karma-junit-sonarqube-reporter2": "~0.0.1"
   }
 }
 ```
 
 You can simple do it by:
 ```bash
-npm install karma-junit-sonarqube-reporter --save-dev
+npm install karma-junit-sonarqube-reporter2 --save-dev
 ```
 
 ## Configuration
